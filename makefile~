@@ -1,0 +1,15 @@
+CXX=g++
+CXXFLAGS += -c -Wall -ggdb -std=c++11
+LDFLAGS  += -ggdb
+
+
+all: ctest_exe
+
+ctest.o: ctest.cpp
+	$(CXX) $(CXXFLAGS) ctest.cpp
+
+ctest_exe: ctest.o
+	$(CXX) -o ctest_exe ctest.o $(LDFLAGS) 
+
+clean:
+	rm -rf *o ctest_exe

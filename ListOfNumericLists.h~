@@ -1,0 +1,62 @@
+#ifndef LIST_NUMERIC_LISTS
+#define LIST_NUMERIC_LISTS
+
+#include "NumericList.h"
+
+template <typename T>
+class ListOfNumericLists
+{
+
+ public:
+ ListOfNumericLists()
+   : was_concatenated(false)
+    {};
+ ListOfNumericLists(const std::vector<NumericList<T>>& list)
+   : m_list(list), was_concatenated(false)
+    {};
+
+  //each time a NumericList is added to the ListOfNumericLists update aggregate measurements
+  void AddToList(const NumericList<T>& list){
+    m_list.push_back(list);
+    maxLength = std::max(maxLength, list.length);
+    m_maxVal = std::max(m_maxVal, list.m_maxVal);
+    m_minVal = std::min(m_minVal, list.m_minVal);
+    m_maxVal = std::max(m_maxVal, list.m_maxVal);
+    m_minVal = std::min(m_minVal, list.m_minVal);    
+    if(was_concatenated){
+      m_concatenated_list.insert(m_concatenated_list.begin(), list.begin(), list.end());
+    }
+  }
+  //concatenate values of all NumericLists
+  void Concatenate(){
+    if(!was_concatenated){
+      std::vector<T> toConcat;
+      std::vector<T> numHolder;
+      for( auto it = m_list.begin(); it != m_list.end(); it++){
+	numHolder = (*it).getNumConst();
+	toConcat.insert(toConcat.end(), numHolder.begin(), numHolder.end());
+      }
+      m_concatenated_list = NumericList<T>(toConcat);
+    } 
+  }
+  const NumericList<T>& GetConcatenated() const{
+    return m_concatenated_list;
+  }
+  void print(std::ostream& os) const {
+    for (auto it = m_list.begin(); it != m_list.end(); it++){
+      (*it).print(os);
+    }
+  }
+  
+ private:
+  std::vector<NumericList<T>> m_list;
+  int maxLength;
+  T m_maxVal;
+  T m_minVal;
+  T m_maxX;
+  T m_minX; 
+  NumericList<T> m_concatenated_list;
+  bool was_concatenated; 
+};
+
+#endif // LIST_NUMERIC_LISTS

@@ -1,0 +1,38 @@
+
+files = list.files()
+files = files[substring(files, nchar(files)-2, nchar(files)) == "txt"]
+files = files[substring(files, 1, 4)!="subr"]
+files = files[substring(files, 1, 4) !="anno"]
+to_keep = "_byX_"
+files = files[grep(to_keep, files)]
+
+x_mult = 2
+y_mult = 2
+#this had to change
+col_offset = 1
+ 
+
+pdf("ALL_REDDITS_BY_X.pdf")
+for(i in 0:7){
+desired_indices = c((1+i*6):(6+i*6))
+par(mfrow=c(3,2))
+for(filename in files[desired_indices]){
+   mydata = read.csv(filename, header=FALSE )
+   norm_factor =  sum(colSums(Filter(is.numeric, mydata)))
+    mat = data.matrix(mydata[ , 1:(ncol(mydata)-col_offset)])
+    mat2 = apply(mat, 2, rev)
+    mat2 = mat2/norm_factor 
+    image( c(0:(ncol(mat2))), c(0:(nrow(mat2))), t(mat2)
+    , breaks = c(seq(0, .2, length.out = 15), 1),        col=colorRampPalette(c(rgb(0,0,1,0), rgb(0,0,1,1)), alpha = TRUE)(15), axes=FALSE, xlab="time of day (EST)", ylab = "rank within top 25")
+    mainTitle = substring(filename, 1, (nchar(filename) - 4 - nchar(to_keep)))
+mainTitle = paste(mainTitle, " - ", norm_factor, " samples")
+title(main=mainTitle)
+    #these had to change
+    axis(1, c(0:ncol(mat2)), seq(from = 0, to= ncol(mat2)*x_mult , by=x_mult ))   
+    axis(2, c(0:(nrow(mat2))), c(seq(from = 25, to=y_mult, by = -1*y_mult), 1))		
+}
+}
+dev.off()
+ 
+
+

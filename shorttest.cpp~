@@ -1,0 +1,10 @@
+
+void f(int a, int b = 10, int c = 22){
+
+  std::cout << "some crap" << std::endl;
+}
+
+int main()
+{
+
+}
