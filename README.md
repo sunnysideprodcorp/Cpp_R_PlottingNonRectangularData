@@ -21,3 +21,8 @@ These two-dimensional histogram plots are an instructive way to examine non-rect
 The code includes have different alignment options to learn different things about the data. In the above plot, where all time series are aligned together at their first point, we learn about how a threads in a certain subreddit tend to over time. But we might also ask how different subreddits behave at different times of the day. We can see that information below, in an example plot. In particular, we see that personalfinance is largely popular in the mid to late evening hours, whereas nottheonion is popular almost every hour of the day. nottheonion is overall also more popular, achieving higher ranks and a higher overall count compared to personalfinance.
 
 ![ "data image" ](https://github.com/sunnysideprodcorp/PlottingNonRectangularData/blob/master/compare1.jpg "Data plot")
+
+Anyone using or modifying the C++ code should be aware of a few particulars:
+
+1. There is no error checking in the Hist2D class. You must be sure that the max and min values you use to initialize a Hist2D will cover all your data. If not, you will have a run-time error that could waste a lot of time. The decision was made to avoid error checking in favor of speed.
+2. In NumericVector, summary statistics are all computed as doubles. If you are using especially troublesome arithmetic types, such as long ints, these summary statistics may not cast correctly. You must check these values or insert error checking and appropriate casting. Again the decision was made to keep the code light weight and speedy.
