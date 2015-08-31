@@ -12,7 +12,6 @@ You can see the kinds of plots that can be made by looking over the pdf files in
 
 To get a sense of how a particular subreddit does, you can look both at how it does when it first enters the top 25 (left) and how it does compared to what time it is on the East Coast of the United States:<br>
 
-<img src = 'internet.hours.jpg'><img src = 'internet.time.jpg'>
-
 
 ```
+![ "data image" ](https://github.com/sunnysideprodcorp/PlottingNonRectangularData/blob/master/internet.hours.jpg "Data plot")
