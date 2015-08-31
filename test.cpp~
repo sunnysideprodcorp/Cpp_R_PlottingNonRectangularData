@@ -1,7 +1,0 @@
-#include "Hist2D.h"
-
-int main(){
-
-
-  Hist2D<int> h;
-}
