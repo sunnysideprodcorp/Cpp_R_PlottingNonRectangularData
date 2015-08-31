@@ -1,5 +1,5 @@
 The code in this repository is designed to deal with non-rectangular data, such as time series collected as part of a web-scraping exercise. Below you see a sample of web-scraping that recorded the ranks of the top-25 Reddit posts every hour. For each post, the rank and time the rank was recorded were collected until the post fell out of the top 25. This resulted in a .tsv file, with example lines below, where each row represents a single post and its trajectory through the front page of Reddit.  
-
+````
 comp	id	subreddit	created	ranks	recorded_at	rank_length
 0	3ckf7b	pics	1436373189.0	[1, 1, 3, 5]	[1436392502, 1436396101, 1436399701, 1436403301]	4.0
 0	3csv79	UpliftingNews	1436538581.0	[16, 24]	[1436558101, 1436594101]	2.0
@@ -10,7 +10,7 @@ comp	id	subreddit	created	ranks	recorded_at	rank_length
 0	3d2m5l	pics	1436748860.0	[6]	[1436781302]	1.0
 0	3b5ll4	nottheonion	1435291130.0	[14, 14, 17]	[1435326901, 1435330501, 1435334101]	3.0
 0	3a7l67	Showerthoughts	1434575878.0	[16, 13]	[1434617702, 1434628502]	2.0
-
+````
 
 The goal of the code is to convert information like the above into plots that look like what we see below. 
 
