@@ -1,0 +1,18 @@
+```html
+
+The C++ processing files were designed to extract lists of numbers where the length of each list (stored in rows of a textfile) is unknown and where the list can be composed of any kind of arithmetic type.
+
+The files create a NumericVector class that stored numeric data in (x,y) pairs where y represents the value of interest and x can be a corresponding secondary value or a displacement measurement to order the y-pairs.
+
+In the particular demo shown, data is extracted from data.tsv, the result of a webscraping exercise that recorded the top 25 Reddit posts every hour. data.tsv contains this data amalgamated so that each row of the file contains the information for one posting. For each posting, the corresponding subreddit was recording as well as the timestamp for the creation of the thread and two lists, one indicating the rank and one indicating the corresponding timestamp for that rank. In this way individual postings can be examined in terms of their behavior over time. Some additional data is available in data.tsv but not used here.
+
+NumericVector provides a handy class for matching the rank of a posting against the time that particular rank was recorded. VectorOfNumericVectors creates a vector of these NumericVectors, a handy container class for grouping NumericVectors and also for taking statistics of their ensemble rather than their individual trajectories. Finally Hist2D is effectively a Boost::Multi_Array wrapper class that uses the Multi_Array as a two-dimensional histogram. Y-values can be plotted relative to their indices or relative to their corresponding X-values. 
+
+You can see the kinds of plots that can be made by looking over the pdf files in the data folder. Some examples are below.
+
+To get a sense of how a particular subreddit does, you can look both at how it does when it first enters the top 25 (left) and how it does compared to what time it is on the East Coast of the United States:<br>
+
+<img src = 'internet.hours.jpg'><img src = 'internet.time.jpg'>
+
+
+```
