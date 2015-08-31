@@ -1,4 +1,4 @@
-<h1> testing </h1>
+```html
 
 The C++ processing files were designed to extract lists of numbers where the length of each list (stored in rows of a textfile) is unknown and where the list can be composed of any kind of arithmetic type.
 
@@ -8,4 +8,11 @@ In the particular demo shown, data is extracted from data.tsv, the result of a w
 
 NumericVector provides a handy class for matching the rank of a posting against the time that particular rank was recorded. VectorOfNumericVectors creates a vector of these NumericVectors, a handy container class for grouping NumericVectors and also for taking statistics of their ensemble rather than their individual trajectories. Finally Hist2D is effectively a Boost::Multi_Array wrapper class that uses the Multi_Array as a two-dimensional histogram. Y-values can be plotted relative to their indices or relative to their corresponding X-values. 
 
-You can see the kinds of plots that can be made by looking over the pdf files in the data folder.
+You can see the kinds of plots that can be made by looking over the pdf files in the data folder. Some examples are below.
+
+To get a sense of how a particular subreddit does, you can look both at how it does when it first enters the top 25 (left) and how it does compared to what time it is on the East Coast of the United States:<br>
+
+<img src = 'internet.hours.jpg'><img src = 'internet.time.jpg'>
+
+
+```html
