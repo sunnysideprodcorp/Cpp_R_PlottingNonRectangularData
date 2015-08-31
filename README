@@ -6,3 +6,4 @@ In the particular demo shown, data is extracted from data.tsv, the result of a w
 
 NumericVector provides a handy class for matching the rank of a posting against the time that particular rank was recorded. VectorOfNumericVectors creates a vector of these NumericVectors, a handy container class for grouping NumericVectors and also for taking statistics of their ensemble rather than their individual trajectories. Finally Hist2D is effectively a Boost::Multi_Array wrapper class that uses the Multi_Array as a two-dimensional histogram. Y-values can be plotted relative to their indices or relative to their corresponding X-values. 
 
+You can see the kinds of plots that can be made by looking over the pdf files in the data folder.
