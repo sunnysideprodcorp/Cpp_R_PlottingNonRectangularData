@@ -1,4 +1,3 @@
-```html
 
 The C++ processing files were designed to extract lists of numbers where the length of each list (stored in rows of a textfile) is unknown and where the list can be composed of any kind of arithmetic type.
 
@@ -10,8 +9,10 @@ NumericVector provides a handy class for matching the rank of a posting against 
 
 You can see the kinds of plots that can be made by looking over the pdf files in the data folder. Some examples are below.
 
-To get a sense of how a particular subreddit does, you can look both at how it does when it first enters the top 25 (left) and how it does compared to what time it is on the East Coast of the United States:<br>
+We can get a sense of how different subreddits perform by watching how individual posts perform when they first enter the top 25 posts, and how long they stay there. For example, in the figure below we see that videos tend to shoot to the top of the rankings but not last a long time. In contrast TwoXChromosomes tends not to rank as highly as videos but does tend to stay around a bit longer in the top 25.
 
+![ "data image" ](https://github.com/sunnysideprodcorp/PlottingNonRectangularData/blob/master/compare1.jpg "Data plot")
 
-```
-![ "data image" ](https://github.com/sunnysideprodcorp/PlottingNonRectangularData/blob/master/internet.hours.jpg "Data plot")
+We have different alignments to learn different things about the data. In addition to seeing how a subreddit does over time, we can also see how time of day affects subreddits. In the image below, we can see that some subreddits are quite time specific. In particular, we see that personalfinance is largely popular in the mid to late evening hours, whereas nottheonion is popular almost every hour of the day. nottheonion is overall also more popular, achieving higher ranks and a higher overall count compared to personalfinance.
+
+![ "data image" ](https://github.com/sunnysideprodcorp/PlottingNonRectangularData/blob/master/compare1.jpg "Data plot")
