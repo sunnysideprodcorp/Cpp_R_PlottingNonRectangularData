@@ -1,0 +1,3 @@
+This contiguous memory allocator was built on Howard Hinnant's stack allocator http://howardhinnant.github.io/stack_alloc.html
+
+The purpose of this class is to store many small vectors. Ideally these are small vectors of constants or read-in data 

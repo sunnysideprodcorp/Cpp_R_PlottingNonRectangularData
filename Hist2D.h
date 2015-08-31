@@ -1,64 +1,68 @@
 #ifndef HIST_2D
 #define HIST_2D
 
-#include "ListOfNumericLists.h"
-#include "NumericList.h"
+#include "VectorOfNumericVectors.h"
+#include "NumericVector.h"
 
 #include <ostream>
 #include <boost/multi_array.hpp>
 
 
-/*
-Hist2D computes a Boost multi-array two dimensional histogram matrix
-Hist2D is intended to be used to create two dimensional histograms of series
-For this reason series alignment can be at the start of the serise, the end of the series
-the max or min value of the series, or according to the corresponding x value of the series.
-Hist2D can be computed on-the-fly with series added one at a time, or with a large number of series added together
-*/
+
+// Hist2D uses a Boost multi-array to store a two dimensional histogram 
+// Alignment of the histogram can be done by index of a vector or by the x-value accompanying each y-value
+// Hist2D can be computed on-the-fly with series added one at a time, or with a large number of series added together
 
 template <typename T,
   typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-class Hist2D
-{
-public:
-  //histogram can be aligned in a variety of ways
-  enum class Alignment {
-    Front, Back, AtMax, AtMin, ByX
-      };
-
-  //the defaults for Hist2D constructor are based on x varying from 0 to 23 hours and y varying from 0 to 25 (ranking, predetermined range from webscraping parameters)
-  Hist2D(int xBins=26, int yBins=28, double xMin = -.1, double xMax = 24, double yMin = -.1, double yMax = 25.1) :
-    m_xBins(xBins), m_yBins(yBins),  m_xMin(xMin), m_xMax(xMax), m_yMin(yMin), m_yMax(yMax), m_xVals(xBins+1), m_yVals(yBins+1),  m_matrixCount(boost::extents[yBins][xBins])
+  class Hist2D
   {
-    //all bins start counting from zero
+  public:
+  // Hist2D can align histograms in a variety of ways
+  enum class Alignment {
+    // First four alignment types align all series according to indices of values rather than x dimension of series
+    // These provide ways to compare values at a particular part of a series ("beginning, end") rather than
+    // values relative to an actual x value such as time or displacement
+    Front, // Each series of y values is binned with x as index of y axis and all NumericVectors start at 1
+    Back,  // Each series of y values is binned with x as index of y axis and all NumericVectors end at last available x value in histogram 
+    AtMax, // Each series of y values is aligned within histogram such that the max value is at the center x value of the histogram
+    AtMin, // Each series of y values is aligned within histogram such that the min value is at the center x value of the histogram
+    // Fifth alignment type aligns along 'true' x value, so can show how value relates to other dimension, such as value vs. time or value vs. displacement
+    ByX    // Each series is aligned according to 'true' x value rather than index of y axis
+
+  };
+
+  Hist2D(int xBins=26, int yBins=28, double xMin = -.1, double xMax = 24, double yMin = -.1, double yMax = 25.1) :
+  m_xBins(xBins), m_yBins(yBins),  m_xMin(xMin), m_xMax(xMax), m_yMin(yMin), m_yMax(yMax), m_xVals(xBins+1), m_yVals(yBins+1),  m_matrixCount(boost::extents[yBins][xBins])
+  {
+    // Initializes all bins to 0
     std::fill(m_matrixCount.origin(), m_matrixCount.origin() + m_matrixCount.size(), 0);
 
-    //calculate binning increments for x and y to include all values between specified min and max, binned in equally sized and uniformly distributed ranges
+    // Calculates binning increments for x and y
     double xInc = (xMax - xMin)/xBins;
     double yInc = (yMax - yMin)/yBins;
-    for(int i = 0; i<(xBins+1); i++){ m_xVals[i] = xMin + i*xInc; }
-    for(int i = 0; i<(yBins+1); i++){ m_yVals[i] = yMin + i*yInc; }
+    for ( int i = 0; i<(xBins+1); i++ ) { m_xVals[i] = xMin + i*xInc; }
+    for ( int i = 0; i<(yBins+1); i++ ) { m_yVals[i] = yMin + i*yInc; }
   }
     
-  //adds many series to histogram passed in through a container class, ListOfNumericLists
-  void addToHist(const ListOfNumericLists<T>& listOfLists, Alignment alignment ){
-    auto list = listOfLists.getList();
-    for(auto it = list.begin(); it!=list.end(); ++it){
+  // Adds all series to histogram as passed in through container VectorOfNumericVectors
+  void addToHist(const VectorOfNumericVectors<T>& listOfVectors, Alignment alignment ){
+    auto list = listOfVectors.getVector();
+    for ( auto it = list.begin(); it!=list.end(); ++it ) {
       addToHist(*it, alignment);
     }
   }
 
-  //adds single series to histogram
-  void addToHist(const NumericList<T>& numList, Alignment alignment) {
-    const std::vector<T>& toAdd = numList.getYConst();
+  // Adds single series to histogram
+  // See enum definition above for description of Alignment types
+  void addToHist(const NumericVector<T>& numVector, Alignment alignment) {
+    const std::vector<T>& toAddY = numVector.getYConst();
     int i, xInd, yInd;
     switch(alignment){
     case Alignment::Front :
       {
-        //use this method to align all series at their beginning
-        //this means the 'x' value will be ignored
 	i = 0;
-	for (auto it = toAdd.begin(); it != toAdd.end(); ++it) {
+	for (auto it = toAddY.begin(); it != toAddY.end(); ++it) {
 	  xInd = std::lower_bound(m_xVals.begin(), m_xVals.end(), i) - m_xVals.begin() - 1;
  	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), *it) - m_yVals.begin() - 1;
 	  m_matrixCount[yInd][xInd] +=1;
@@ -68,10 +72,8 @@ public:
       }
     case Alignment::Back :
       {
-        //use this method to align all series at their end
-        //this means the 'x' value will be ignored
 	i = m_matrixCount.shape()[0] - 1;
-	for (auto it = toAdd.rbegin(); it != toAdd.rend(); ++it) {
+	for (auto it = toAddY.rbegin(); it != toAddY.rend(); ++it) {
 	  xInd = std::lower_bound(m_xVals.begin(), m_xVals.end(), i) - m_xVals.begin() - 1;
  	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), *it) - m_yVals.begin() - 1;
 	  m_matrixCount[yInd][xInd] +=1;
@@ -81,13 +83,11 @@ public:
       }
     case Alignment::AtMax :
       {
-        //use this method to align all series at their 'max' (here it is the 'min' because rank starts low and goes high)
-        //this means the 'x' value will be ignored
 	i = m_matrixCount.shape()[0]/2;
-	auto it = std::find(toAdd.begin(), toAdd.end(), numList.m_maxVal);
-	auto minIndex = std::distance(toAdd.begin(), it);
+	auto it = std::find(toAddY.begin(), toAddY.end(), numVector.m_maxY);
+	auto minIndex = std::distance(toAddY.begin(), it);
 	i -= minIndex;
-	for (auto it = toAdd.begin(); it != toAdd.end(); ++it) {
+	for (auto it = toAddY.begin(); it != toAddY.end(); ++it) {
 	  xInd = std::lower_bound(m_xVals.begin(), m_xVals.end(), i) - m_xVals.begin() - 1;
  	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), *it) - m_yVals.begin() - 1;
 	  m_matrixCount[yInd][xInd] +=1;
@@ -97,13 +97,11 @@ public:
       }
     case Alignment::AtMin :
       {
-        //use this method to align all series at their 'max' (here it is the 'min' because rank starts low and goes high)
-        //this means the 'x' value will be ignored
 	i = m_matrixCount.shape()[0]/2;
-	auto it = std::find(toAdd.begin(), toAdd.end(), numList.m_minVal);
-	auto minIndex = std::distance(toAdd.begin(), it);
+	auto it = std::find(toAddY.begin(), toAddY.end(), numVector.m_minY);
+	auto minIndex = std::distance(toAddY.begin(), it);
 	i -= minIndex;
-	for (auto it = toAdd.begin(); it != toAdd.end(); ++it) {
+	for (auto it = toAddY.begin(); it != toAddY.end(); ++it) {
 	  xInd = std::lower_bound(m_xVals.begin(), m_xVals.end(), i) - m_xVals.begin() - 1;
  	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), *it) - m_yVals.begin() - 1;
 	  m_matrixCount[yInd][xInd] +=1;
@@ -113,49 +111,47 @@ public:
       }
     case Alignment::ByX :
       {
-        //use this method to align all series according to their 'x' value
-        //'x' is not ignored in this alignment method
-	const std::vector<T>& toAddX = numList.getXConst();
+	const std::vector<T>& toAddX = numVector.getXConst();
 	for (unsigned int i = 0; i < toAddX.size(); i++) {
 	  xInd = std::lower_bound(m_xVals.begin(), m_xVals.end(), toAddX[i]) - m_xVals.begin() - 1;
- 	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), toAdd[i]) - m_yVals.begin() - 1;
+ 	  yInd = std::lower_bound(m_yVals.begin(), m_yVals.end(), toAddY[i]) - m_yVals.begin() - 1;
 	  m_matrixCount[yInd][xInd] +=1;
 	}
 	break;
       }
     default:
       std::cout << "Improper alignment parameter in Hist2D addToHist method" << std::endl;
-    }
-    
-    }
-  
-void print(std::ostream& os) const {
-  int width = m_matrixCount.shape()[0];
-  int height = m_matrixCount.shape()[1];
-  os << "xbins, ybins, xmin, xmax, ymin, ymax" << std::endl;
-  os << m_xBins << ", " << m_yBins << ", " << m_xMin << ", " << m_xMax  << ", " << m_yMin << ", " << m_yMax << std::endl;
-  for(int i = 0; i < width; i++){
-    for(int j = 0; j < (height -1); j++){
-      os << " " << m_matrixCount[i][j] << ",  ";
-    }
-    //separate out last column of each line to avoid stray ','
-    os << " " << m_matrixCount[i][height-1];
-    os << std::endl;
+    }  
   }
-}
+  
+  void print(std::ostream& os) const {
+    int width = m_matrixCount.shape()[0];
+    int height = m_matrixCount.shape()[1];
+    os << "xbins, ybins, xmin, xmax, ymin, ymax" << std::endl;
+    os << m_xBins << ", " << m_yBins << ", " << m_xMin << ", " << m_xMax  << ", " << m_yMin << ", " << m_yMax << std::endl;
+    for ( int i = 0; i < width; i++ ) {
+      for ( int j = 0; j < (height -1); j++ ) {
+	os << " " << m_matrixCount[i][j] << ",  ";
+      }
+      // Separates out last column of each line to avoid stray ',' at end of each row
+      os << " " << m_matrixCount[i][height-1];
+      os << std::endl;
+    }
+  }
 
-private:
-  typedef boost::multi_array<T, 2> array_type;
+  private:
   int m_xBins;
   int m_yBins;
-  double m_xMin;
-  double m_xMax;
-  double m_yMin;
-  double m_yMax;
+  T m_xMin;
+  T m_xMax;
+  T m_yMin;
+  T m_yMax;
   std::vector<double> m_xVals;
   std::vector<double> m_yVals;
+  typedef boost::multi_array<T, 2> array_type;
   array_type m_matrixCount;
 
-};
+
+  };
 
 #endif // HIST_2D
