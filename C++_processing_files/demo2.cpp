@@ -1,18 +1,3 @@
-#include <fstream>
-#include <memory>
-#include <map>
-#include <list>
-#include <typeinfo>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <iterator>
-#include <algorithm>
-#include <numeric>
-#include <cmath>
-#include <boost/multi_array.hpp>
 
 #include "NumericVector.h"
 #include "VectorOfNumericVectors.h"
