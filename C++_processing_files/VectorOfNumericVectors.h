@@ -18,7 +18,7 @@ class VectorOfNumericVectors
 {
  public:
  VectorOfNumericVectors()
-   : m_wasConcatenated(false), m_statsCurrent(true)
+   : m_wasConcatenated(false), m_statsCurrent(false)
     {}
  VectorOfNumericVectors(const std::vector<NumericVector<T>>& vec)
    : m_vec(vec), m_wasConcatenated(false), m_statsCurrent(false)
@@ -33,11 +33,20 @@ class VectorOfNumericVectors
     m_minY = std::min(m_minY, list.m_minY);
     m_maxX = std::max(m_maxY, list.m_maxX);
     m_minX = std::min(m_minY, list.m_minX);    
+
     if ( m_wasConcatenated ) {
-      m_wasConcatenated = false;
-      Concatenate();
-    }
+      std::vector<T> newX, newY;
+      
+      newX.assign(m_concatenatedVector.getXConst().begin(), m_concatenatedVector.getXConst().end());
+      newX.insert(newX.end(), list.getXConst().begin(), list.getXConst().end());
+
+      newY.assign(m_concatenatedVector.getYConst().begin(), m_concatenatedVector.getYConst().end());
+      newY.insert(newY.end(), list.getYConst().begin(), list.getYConst().end());
+      
+      m_concatenatedVector = NumericVector<T>(newY, newX);
+      }
   }
+ 
   //concatenate values of all NumericVectors
   void Concatenate(){
     if ( !m_wasConcatenated ) {
@@ -45,26 +54,27 @@ class VectorOfNumericVectors
       std::vector<T> yHolder, xHolder;
       if ( m_statsCurrent ) {
 	for ( auto it = m_vec.begin(); it != m_vec.end(); it++){
-	  yHolder = (*it).getNumConst();
+	  yHolder = (*it).getYConst();
 	  xHolder   = (*it).getXConst();
 	  toConcatY.insert(toConcatY.end(), yHolder.begin(), yHolder.end());
 	  toConcatX.insert(toConcatX.end(), xHolder.begin(), xHolder.end());
 	}
       } else {
 	for ( auto it = m_vec.begin(); it != m_vec.end(); it++ ) {
-	  yHolder = (*it).getNumConst();
+	  yHolder = (*it).getYConst();
 	  xHolder   = (*it).getXConst();
 	  toConcatY.insert(toConcatY.end(), yHolder.begin(), yHolder.end());
 	  toConcatX.insert(toConcatX.end(), xHolder.begin(), xHolder.end());
-	  m_maxLength = std::max(m_maxLength, yHolder.length);
-	  m_minLength = std::min(m_minLength, yHolder.length);
+	  int new_length = yHolder.size();
+	  m_maxLength = std::max(m_maxLength, new_length);
+	  m_minLength = std::min(m_minLength, new_length);
 	}
       }
       m_concatenatedVector = NumericVector<T>(toConcatY, toConcatX);
     } 
   }
 
-  const NumericVector<T> getConcatenated() const{
+  const NumericVector<T> getConcatenated() {
     if ( !m_wasConcatenated ) Concatenate(); 
     return m_concatenatedVector;
   }

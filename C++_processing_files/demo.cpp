@@ -18,6 +18,8 @@
 #include "VectorOfNumericVectors.h"
 #include "Hist2D.h"
 
+const std::string FILENAME_COMPONENT = "_front_";
+
 template <typename T>
 void print(std::ostream& os, const std::vector<T>& v) {
   std::copy(v.begin(), v.end(),
@@ -46,7 +48,7 @@ std::unique_ptr<T> make_unique(Args&&... args) {
 int main()
 {
 
-  std::ifstream infile("data.tsv");
+  std::ifstream infile("../data/data.tsv");
   std::string line;
   bool first(true);
   std::vector<std::vector<int> > vec;
@@ -70,7 +72,7 @@ int main()
 	if ( column_counter == 2 ) {    // Column 2 contains name of subreddit to which a particular thread (row) belongs
 	    keyString = i;
 	    if ( !SubjectList.count(keyString) ) {
-	       SubjectList[keyString] = make_unique<Hist2D<int>>(12, 12);
+	      SubjectList[keyString] = make_unique<Hist2D<int>>(15, 25, -.1, 15.1);
 	       SubjectTraits[keyString] = std::vector<std::vector<double>>(0);			   
 	    }
 	  }
@@ -114,7 +116,7 @@ int main()
 	    NumericVector<int> newVector(stringvec1, stringvec2);
 	    std::vector<double> traitsVector = newVector.getAllData();
 	    SubjectTraits[keyString].push_back(traitsVector);
-	    SubjectList[keyString]->addToHist(newVector, Hist2D<int>::Alignment::ByX);
+	    SubjectList[keyString]->addToHist(newVector, Hist2D<int>::Alignment::Front);
 	    first = true;
 	  }	  
 	}
@@ -126,7 +128,7 @@ int main()
 
   // Saves each histogram to a text file named for corresponding subreddit 
   for ( const auto &subject: SubjectList ) {
-    filename =  subject.first + "_byX_"  +".txt";
+    filename = "../data/" + subject.first + FILENAME_COMPONENT + ".txt";
     myfile.open (filename);
     subject.second->print(myfile);
     myfile.close();      
@@ -134,7 +136,7 @@ int main()
 
   // For each Reddit thread in a given subreddit, saves the traits of that thread
   for ( const auto &traits: SubjectTraits ) {
-    filename = traits.first + "_traits_.csv";
+    filename = "../data/" + traits.first + "_traits_.csv";
     myfile.open (filename);      
       for ( auto it = traits.second.begin(); it!=traits.second.end(); ++it ) {
 	print(myfile, *it);

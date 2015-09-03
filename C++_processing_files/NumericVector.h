@@ -21,6 +21,9 @@ template <typename T,
   T m_minX;
   int length;
 
+  //Default constructor
+  NumericVector() {}
+  
   // NumericVector requires two std::vectors of type T for allocation and initialization.
   // Some relevant attributes of the two vectors are immediately computed upon class initialization
   NumericVector(const std::vector<T>& newY, const std::vector<T>& newX)
@@ -41,6 +44,14 @@ template <typename T,
   double getMean() const { return calcMean(true);}
   double getSD() const { return calcSD(true);}
 
+  const std::vector <T>&  getSortedValues() 
+  {
+    if ( !m_sortedComputed ) {
+      computeSorted();
+    }
+    return m_sortedNumbers;
+  }
+  
   // Retrieves constant reference to a vector containing a single copy of each
   // unique values stored in m_yAxis. Probably has little utility when T is not int.
   // Has not been tested with non-int T class types
@@ -120,25 +131,26 @@ template <typename T,
     return result;
   }
 
-  void print(std::ostream& os, const NumericVector<T>& numList) const {
-    std::cout << "Y values" << std::endl;
-    auto yVec = numList.getYConst();
-    printVec(os, yVec);
-    std::cout << "X values" << std::endl;
-    auto xVec = numList.getXConst();
-    printVec(os, xVec);
+  //  void print(std::ostream& os, const NumericVector<T>& numList) const {
+  void print(std::ostream& os) const {
+    os << "Y values" << std::endl;
+    printVec(os, m_yAxis);
+    os << "X values" << std::endl;
+    printVec(os, m_xAxis);
   }
   
   private:
   std::vector<T> m_yAxis = { };
   std::vector<T> m_xAxis = { };
   std::vector<T> m_uniqueNumbers = { };
+  std::vector<T> m_sortedNumbers = { };
   std::vector<T> m_inflection = { };
   int m_inflectionCount;
   bool m_uniqueComputed = false;
+  bool m_sortedComputed = false;
   bool m_inflectionComputed = false;
 
-  void printVec(std::ostream& os, const std::vector<T>& v) {
+  void printVec(std::ostream& os, const std::vector<T>& v) const {
     for ( int i = 0; i<(v.size()-1); i++ ) {
       os << v[i] << ", ";
     }
@@ -146,12 +158,23 @@ template <typename T,
     os << std::endl;
   }
 
+
+  // Computes ordered vector of all yAxis values
+  void computeSorted() {   
+      m_sortedNumbers.assign(m_yAxis.begin(), m_yAxis.end());
+      std::sort(m_sortedNumbers.begin(), m_sortedNumbers.end());
+  }
+
+  
   // Computes unique values within series
   // No precautionary steps are taken to deal with numeric error
   // so this method should robably be restructed to int types
   // but such restriction is not forced in the code
   void computeUnique(bool useDefault = true){   
-    m_uniqueNumbers.assign(m_yAxis.begin(), m_yAxis.end());
+    if ( !m_sortedComputed ) {
+      computeSorted();
+    }
+    m_uniqueNumbers.assign(m_sortedNumbers.begin(), m_sortedNumbers.end());
     auto new_end = std::unique(m_uniqueNumbers.begin(), m_uniqueNumbers.end());
     m_uniqueNumbers.erase(new_end, m_uniqueNumbers.end());
   }
